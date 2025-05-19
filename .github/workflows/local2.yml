@@ -9,7 +9,7 @@ on:
       KERNEL_BRANCH:
         description: 'Kernel Source Branch'
         required: true
-        default: 'A135FXXSAEYA1_CIS'
+        default: 'A135FXXSAEYA1_CIS-KSUN'
       TOOLCHAIN_BRANCH:
         description: 'Toolchain Branch'
         required: true
@@ -53,8 +53,7 @@ jobs:
 
     - name: Clone Kernel Source
       run: |
-        git clone ${{ inputs.KERNEL_URL }} -b ${{ inputs.KERNEL_BRANCH }} kernel
-        git submodule update --init --recursive
+        git clone  --recursive ${{ inputs.KERNEL_URL }} -b ${{ inputs.KERNEL_BRANCH }} kernel
 
     - name: Download Toolchain
       run: |
