@@ -1,30 +1,32 @@
-name: Kernel Builder (Local v2)
+name: Kernel Builder
 on:
   workflow_dispatch:
     inputs:
       KERNEL_URL:
         description: 'Kernel Source URL'
         required: true
-        default: 'https://github.com/VThang51/android_kernel_oppo_a12.git'
+        default: 'https://github.com/VThang51/android_kernel_samsung_a13xx.git'
       KERNEL_BRANCH:
         description: 'Kernel Source Branch'
         required: true
-        default: 'main'
-      TC_BRANCH:
+        default: 'A135FXXSAEYA1_CIS'
+      TOOLCHAIN_BRANCH:
         description: 'Toolchain Branch'
         required: true
-        default: 'pie-release'
+        default: 'android12L-release'
+      CLANG:
+        description: 'clang-'
+        required: true
+        default: 'r383902'
       ARCH:
-        description: 'ARCH'
+        description: 'ARCH='
         required: true
         default: 'arm64'
       DEFCONFIG:
-        description: 'defconfig file'
+        description: '_defconfig file'
         required: true
-        default: 'oppo6765_19451_defconfig'
-      COMMAND:
-        description: 'Run Additional Command (Before Build)'
-        required: false
+        default: 'exynos850-a13xx_defconfig'
+      
 jobs:
   Buiding-Kernel:
     runs-on: ubuntu-latest
@@ -51,31 +53,35 @@ jobs:
 
     - name: Clone Kernel Source
       run: |
-        mkdir kernel
-        cd kernel
-        git clone ${{ inputs.KERNEL_URL }} -b ${{ inputs.KERNEL_BRANCH }} .
+        git clone ${{ inputs.KERNEL_URL }} -b ${{ inputs.KERNEL_BRANCH }} kernel
         git submodule update --init --recursive
 
-    - name: Clone Toolchain
+    - name: Download Toolchain
       run: |
         cd kernel
-        git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b ${{ inputs.TC_BRANCH }} toolchain/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
+        mkdir toolchain toolchain/clang
+        cd toolchain/clang
+        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/${{ inputs.TOOLCHAIN_BRANCH }}/clang-${{ inputs.CLANG }}.tar.gz -O clang.tar.gz
+        tar -xvf clang.tar.gz
+        rm -v clang.tar.gz
+        git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b ${{ inputs.TOOLCHAIN_BRANCH }} ../cross_compile
+        
 
     - name: Building Kernel
       run: |
         cd kernel
+        export CROSS_COMPILE="./toolchain/cross_compile/bin/aarch64-linux-android-"
+        export CC="./toolchain/clang/bin/clang"
+        export CLANG_TRIPLE="./toolchain/clang/bin/aarch64-linux-gnu-"
+        export PLATFORM_VERSION=12
+        export ANDROID_MAJOR_VERSION=s
         export ARCH=${{ inputs.ARCH }}
-        export CROSS_COMPILE=$(pwd)/toolchain/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-        ${{ inputs.COMMAND }}
         make ARCH=${{ inputs.ARCH }} ${{ inputs.DEFCONFIG }}
         make ARCH=${{ inputs.ARCH }}
 
-    - name: Re-Compress Source
-      run: |
-        rm -rfv kernel/toolchain
-        tar -cvJf ${{ inputs.KERNEL_BRANCH }}.tar.xz kernel
- 
     - uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.KERNEL_BRANCH }}
-        path: ${{ inputs.KERNEL_BRANCH }}.tar.xz
+        name: ${{ inputs.KERNEL_BRANCH }}-${{ inputs.CLANG }}
+        path: |
+          kernel/arch/arm64/boot/Image
+          kernel/drivers/*/*.ko
