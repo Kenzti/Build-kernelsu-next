@@ -52,29 +52,24 @@ jobs:
 
     - name: Clone Kernel Source
       run: |
-        git clone  --recursive ${{ inputs.KERNEL_URL }} -b ${{ inputs.KERNEL_BRANCH }} ~/kernel
+        git clone  --recursive ${{ inputs.KERNEL_URL }} -b ${{ inputs.KERNEL_BRANCH }} kernel
 
-    - name: Download Clang
+    - name: Download Toolchain
       run: |
-        cd ~/kernel
-        mkdir toolchain
-        mkdir toolchain/cc
-        cd toolchain/cc
-        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/${{ inputs.TOOLCHAIN_BRANCH }}/clang-${{ inputs.CLANG }}.tar.gz -O clang.tar.gz
+        cd kernel
+        wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/${{ inputs.TOOLCHAIN_BRANCH }}/clang-${{ inputs.CLANG }}.tar.gz -O toolchain/clang/host/linux-x86/clang-${{ inputs.CLANG }}/clang.tar.gz
+        cd toolchain/clang/host/linux-x86/clang-${{ inputs.CLANG }}
         tar -xvf clang.tar.gz
         rm -v clang.tar.gz
 
-    - name: Download Clang
+    - name: Download Toolchain
       run: |
-        cd ~/kernel/toolchain
-        git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b ${{ inputs.TOOLCHAIN_BRANCH }} cross_compile
+        cd kernel
+        git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b ${{ inputs.TOOLCHAIN_BRANCH }} toolchain/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
 
     - name: Building Kernel
       run: |
         cd ~/kernel
-        export CROSS_COMPILE="~/kernel/toolchain/cross_compile/bin/aarch64-linux-android-"
-        export CC="~/kernel/toolchain/cc/bin/clang"
-        export CLANG_TRIPLE="~/kernel/toolchain/cc/bin/aarch64-linux-gnu-"
         export PLATFORM_VERSION=12
         export ANDROID_MAJOR_VERSION=s
         export ARCH=${{ inputs.ARCH }}
