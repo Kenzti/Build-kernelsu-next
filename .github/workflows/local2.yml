@@ -57,6 +57,7 @@ jobs:
     - name: Download Toolchain
       run: |
         cd kernel
+        mkdir -p toolchain/clang/host/linux-x86/clang-${{ inputs.CLANG }}
         wget https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/${{ inputs.TOOLCHAIN_BRANCH }}/clang-${{ inputs.CLANG }}.tar.gz -O toolchain/clang/host/linux-x86/clang-${{ inputs.CLANG }}/clang.tar.gz
         cd toolchain/clang/host/linux-x86/clang-${{ inputs.CLANG }}
         tar -xvf clang.tar.gz
@@ -65,6 +66,7 @@ jobs:
     - name: Download Toolchain
       run: |
         cd kernel
+        mkdir -p toolchain/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
         git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b ${{ inputs.TOOLCHAIN_BRANCH }} toolchain/gcc/linux-x86/aarch64/aarch64-linux-android-4.9
 
     - name: Building Kernel
