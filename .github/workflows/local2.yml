@@ -96,6 +96,9 @@ jobs:
         fi
         ls -a
 
+    - name: Check if path_umount is defined
+      run: grep -r "path_umount" kernel/fs/namespace.c
+
     - name: Building Kernel
       run: |
         cd kernel
