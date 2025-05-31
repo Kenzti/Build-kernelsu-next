@@ -92,7 +92,6 @@ jobs:
         elif [[ $ADDSU == "KernelSU Next" ]]; then
         	curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
         elif [[ $ADDSU == "KernelSU Next + SuSFS" ]]; then
-        	curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
         	curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
         fi
         ls -a
