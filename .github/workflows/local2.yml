@@ -105,9 +105,15 @@ jobs:
         make ARCH=${{ inputs.ARCH }} ${{ inputs.DEFCONFIG }}
         make ARCH=${{ inputs.ARCH }}
 
+    - name: Compress Kernel Source
+      run: |
+        rm -rv kernel/toolchain
+        tar -cvzf {{ inputs.KERNEL_BRANCH }}-${{ inputs.CLANG }}.tar.gz kernel
+
     - uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.KERNEL_BRANCH }}-${{ inputs.CLANG }}
         path: |
           kernel/arch/arm64/boot/Image
           kernel/drivers/*/*.ko
+          {{ inputs.KERNEL_BRANCH }}-${{ inputs.CLANG }}.tar.gz
