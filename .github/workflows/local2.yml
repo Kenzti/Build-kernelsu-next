@@ -12,8 +12,8 @@ on:
         default: 'A135FXXSAEYA1_CIS'
       ADDSU:
         description: 'Add SuperUser'
-        required: true
-        default: 'KernelSU Next'
+        required: false
+        default: 'No'
         type: choice
         options:
           - 'No'
@@ -95,9 +95,6 @@ jobs:
         	curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next-susfs/kernel/setup.sh" | bash -s next-susfs
         fi
         ls -a
-
-    - name: Check if path_umount is defined
-      run: grep -r "path_umount" kernel/fs/namespace.c
 
     - name: Building Kernel
       run: |
